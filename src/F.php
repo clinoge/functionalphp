@@ -129,7 +129,7 @@ class F {
         return call_user_func_array(F::curry(
             function ($fn, $xs) {
                 if (is_object($xs) 
-                    && $xs instanceof Monad
+                    && $xs instanceof IMonad
                     && F::hasMethod('map', $xs)) {
                     return F::method('map', [$fn], $xs);
                 }
