@@ -4,12 +4,14 @@ use ReflectionFunction;
 use ReflectionMethod;
 
 class F {
+    // add :: Int -> Int -> Int
     public static function add() {
         return call_user_func_array(F::curry(function($x,$y) {
             return $x + $y;
         }), func_get_args());
     }
 
+    // and :: Bool -> Bool -> Bool
     public static function and() {
         return call_user_func_array(F::curry(
             function ($x, $y) {
@@ -17,6 +19,7 @@ class F {
         }), func_get_args());
     }
 
+    // call :: (* -> *) -> [*] -> *
     public static function call() {
         return call_user_func_array(F::curry(
             function($fn, $args) {
@@ -28,6 +31,7 @@ class F {
         }), func_get_args());
     }
 
+    // chain :: (a -> Monad b) -> Monad a -> Monad b
     public static function chain() {
         return call_user_func_array(F::curry(
             function($f, $monad) {
@@ -35,6 +39,8 @@ class F {
         }), func_get_args());
     }
 
+    // compose :: (a -> b), .., (x -> n) -> z
+    // ^ almost same definition as in RamdaJS
     public static function compose() {
         $composeBinary = function ($f, $g) {
             return function($x = null) use ($f,$g) {
@@ -49,6 +55,8 @@ class F {
         return array_reduce(func_get_args(), $composeBinary, F::id());
     }
 
+    // curry :: (* -> a) -> (* -> a)
+    // ^ according to RamdaJS
     public static function curry($fn) {
         $rfl = new ReflectionFunction($fn);
         $args = $rfl->getNumberOfParameters();
@@ -63,13 +71,14 @@ class F {
             return F::__curry($fn, [], $n);
         }
     }
-
+    
     public static function curryRight($fn) {
         $rfl = new ReflectionFunction($fn);
         $args = $rfl->getNumberOfParameters();
         return F::__curry($fn, [], $args, true);
     }
 
+    // every :: (a -> Bool), .. , (z -> Bool) -> Bool
     public static function every() {
         return call_user_func_array(F::curry(
             function($f, $xs) {
@@ -81,12 +90,14 @@ class F {
         }), func_get_args());
     }
 
+    // filter :: (a -> Bool) -> [a] -> [a]
     public static function filter() {
         return call_user_func_array(F::curry(function($fn, $xs) {
             return array_filter($fn, $arr);
         }), func_get_args());
     }
 
+    // hasMethod :: String -> Object -> Bool
     public static function hasMethod() {
         return call_user_func_array(F::curry(
             function($method, $obj) {
@@ -94,6 +105,7 @@ class F {
         }), func_get_args());
     }
 
+    // id :: a -> a
     public static function id() {
         return call_user_func_array(F::curry(
             function($x) {
@@ -101,6 +113,7 @@ class F {
         }), func_get_args());
     }
 
+    // join :: Monad (Monad a) -> Monad a
     public static function join() {
         return call_user_func_array(F::curry(
             function($monad) {
@@ -117,6 +130,7 @@ class F {
         }), func_get_args());
     }
 
+    // last :: [a] -> a
     public static function last() {
         return call_user_func_array(F::curry(
             function($xs) {
@@ -125,6 +139,8 @@ class F {
         }), func_get_args());
     }
 
+    // map :: (a -> b) -> Monad a -> Monad b
+    // List (arrays) are monads, aren't they?
     public static function map() {
         return call_user_func_array(F::curry(
             function ($fn, $xs) {
@@ -141,6 +157,7 @@ class F {
         }), func_get_args());
     }
 
+    // not :: (a -> b) -> a -> Bool
     public static function not() {
         return call_user_func_array(F::curry(
             function($f, $x) {
@@ -148,6 +165,7 @@ class F {
         }), func_get_args());
     }
 
+    // method :: String -> [*] -> Object -> *
     public static function method() {
         return call_user_func_array(F::curry(
             function($method, $args, $obj) {
@@ -155,6 +173,7 @@ class F {
         }), func_get_args());
     }
 
+    // prop :: String -> Object -> *
     public static function prop() {
         return call_user_func_array(F::curry(
             function($prop, $obj) {
@@ -172,12 +191,15 @@ class F {
         }), func_get_args());
     }
     
+    // safeProp :: String -> Object -> Maybe *
     public static function safeProp() {
         return call_user_func_array(F::curry(function($prop, $obj) {
             return Maybe::of(F::prop($prop, $obj));
         }), func_get_args());
     }
 
+    // setProp :: String -> * -> Object -> Object
+    // ^ immutable
     public static function setProp() {
         return call_user_func_array(F::curry(
             function($prop, $new_val, $obj) {
@@ -187,17 +209,14 @@ class F {
         }), func_get_args());
     }
 
+    // startsWith :: String -> String -> Bool
     public static function startsWith() {
         return call_user_func_array(F::curry(function($x, $y) {
             return substr($y, 0, strlen($x)) == $x;
         }), func_get_args());
     }
 
-    public static function __callStatic($name, $args) {
-        if (F::startsWith('lift', $name)) {
-            return call_user_func_array(F::__liftN(intval(substr($name, 4))), $args);
-        }
-    }
+    // trace :: (Show a) => a -> a
 
     public static function trace() {
         return call_user_func_array(F::curry(function($args) {
@@ -211,6 +230,7 @@ class F {
         }), func_get_args());
     }
 
+    // T :: * -> Bool
     public static function T() {
         return call_user_func_array(F::curryN(function() {
             return true;
@@ -253,6 +273,11 @@ class F {
             }, $functor->map($args[0]));
         }, $n + 1);
     }
+
+    // Used for lifting as of now
+    public static function __callStatic($name, $args) {
+        if (F::startsWith('lift', $name)) {
+            return call_user_func_array(F::__liftN(intval(substr($name, 4))), $args);
+        }
+    }
 }
-
-
