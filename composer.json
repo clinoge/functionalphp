@@ -3,6 +3,7 @@
     "description": "Functional programming tools for PHP",
     "license": "MIT",
     "version": "0.1",
+    "minimum-stability": "dev",
     "authors": [
         {
             "name": "Carlos Gottberg",
@@ -12,5 +13,8 @@
     "require": {},
     "autoload": {
         "psr-4": {"CLinoge\\Functional\\": "src/"}
+    },
+    "require-dev": {
+        "steos/php-quickcheck": "dev-master"
     }
 }
