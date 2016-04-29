@@ -1,0 +1,16 @@
+{
+    "name": "clinoge/functionalphp",
+    "description": "Functional programming tools for PHP",
+    "license": "MIT",
+    "version": "0.1",
+    "authors": [
+        {
+            "name": "Carlos Gottberg",
+            "email": "42linoge@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {"Linoge\\Functional\\": "src/"}
+    }
+}
