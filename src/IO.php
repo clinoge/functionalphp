@@ -17,7 +17,7 @@ class IO implements IMonad, IFunctor {
 
     public static function of() {
         return call_user_func_array(F::curry(function($x) {
-            new self(function() use ($x) {
+            return new self(function() use ($x) {
                 return $x;
             });
         }), func_get_args());
