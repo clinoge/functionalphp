@@ -2,7 +2,7 @@
 
 namespace CLinoge\Functional;
 
-class IO implements Monad, Functor {
+class IO implements IMonad, IFunctor {
     public function __construct($fn) {
         $this->value = $fn;
     }

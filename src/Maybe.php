@@ -2,7 +2,7 @@
 
 namespace CLinoge\Functional;
 
-class Maybe implements Monad, Functor {
+class Maybe implements IMonad, IFunctor {
     public function __construct($x) {
         $this->value = $x;
     }
