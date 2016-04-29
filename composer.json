@@ -11,6 +11,6 @@
     ],
     "require": {},
     "autoload": {
-        "psr-4": {"Linoge\\Functional\\": "src/"}
+        "psr-4": {"CLinoge\\Functional\\": "src/"}
     }
 }
