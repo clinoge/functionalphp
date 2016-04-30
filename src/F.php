@@ -19,6 +19,21 @@ class F {
         }), func_get_args());
     }
 
+    // andN :: Bool -> ... -> Bool -> Bool
+    public static function andN() {
+        $params = func_get_args();
+        $fn = F::curryN(
+            function($args) {
+                return array_reduce($args, F::and(), true);
+        }, 1);
+
+        if (count($params) > 0) {
+            return call_user_func($fn, $params);
+        } else {
+            return $fn;
+        }
+    }
+
     // call :: (* -> *) -> [*] -> *
     public static function call() {
         return call_user_func_array(F::curry(
@@ -44,11 +59,7 @@ class F {
     public static function compose() {
         $composeBinary = function ($f, $g) {
             return function($x = null) use ($f,$g) {
-                if ($x) {
-                    return $f($g($x));
-                } else {
-                    return $f($g());
-                }
+                return $f($g($x));
             };
         };
 
@@ -97,6 +108,19 @@ class F {
         }), func_get_args());
     }
 
+    // find :: a -> [a] -> a
+    // ^ this should use Either or Maybe monad
+    public static function find() {
+        return call_user_func_array(F::curry(function($x, $xs) {
+            foreach($xs as $x1) {
+                if ($x == $x1) {
+                    return $x;
+                }
+            }
+            return false;
+        }), func_get_args());
+    }
+
     // hasMethod :: String -> Object -> Bool
     public static function hasMethod() {
         return call_user_func_array(F::curry(
@@ -111,6 +135,14 @@ class F {
             function($x) {
                 return $x;
         }), func_get_args());
+    }
+
+    // isFalse :: Bool -> Bool
+    public static function isFalse() {
+        return call_user_func_array(F::curryN(
+            function($x) {
+                return $x == false;
+        }, 1),func_get_args());
     }
 
     // join :: Monad (Monad a) -> Monad a
@@ -220,12 +252,7 @@ class F {
 
     public static function trace() {
         return call_user_func_array(F::curry(function($args) {
-            if (is_array($args))
-            {
-                call_user_func_array('print_r', $args);
-            } else {
-                call_user_func_array('print_r', [$args]);
-            }
+            var_dump($args);
             return $args;
         }), func_get_args());
     }
