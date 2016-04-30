@@ -124,6 +124,24 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // first :: [a] -> a
+    public static function first() {
+        $fn = function($xs) {
+            return $xs[0];
+        };
+
+        return call_user_func_array(F::curryN($fn,1), func_get_args());
+    }
+
+    // foldr :: (a -> b) -> a -> [a] -> *
+    public static function foldr() {
+        $fn = function($fn, $z, $xs) {
+            return F::__foldr($fn, $z, $xs);
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
     // hasMethod :: String -> Object -> Bool
     public static function hasMethod() {
         $fn = function($method, $obj) {
@@ -234,6 +252,15 @@ class F {
 
         return call_user_func_array(F::curry($fn), func_get_args());
     }
+
+    // rest :: [a] -> [a]
+    public static function rest() {
+        $fn = function($xs) {
+            return array_slice($xs, 1);
+        };
+
+        return call_user_func_array(F::curryN($fn, 1), func_get_args());
+    }
     
     // safeProp :: String -> Object -> Maybe *
     public static function safeProp() {
@@ -304,6 +331,14 @@ class F {
                                   $fargs, 
                                   $n - count($args1), $right, false);
             };
+        }
+    }
+
+    public static function __foldr($fn, $z, $xs) {
+        if ($xs == []) {
+            return $z;
+        } else {
+            return $fn(F::first($xs), F::__foldr($fn,$z, F::rest($xs)));
         }
     }
 
