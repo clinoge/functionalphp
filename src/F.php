@@ -13,6 +13,15 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // allEqual :: (Ord a) => [a] -> Bool
+    public static function allEqual() {
+        $fn = function($xs) {
+            return F::every(F::isEqual(F::first($xs)), F::rest($xs));
+        };
+
+        return call_user_func_array(F::curryN($fn,1), func_get_args());
+    }
+
     // and :: Bool -> Bool -> Bool
     public static function and() {
         $fn = function ($x, $y) {
@@ -167,6 +176,15 @@ class F {
         };
 
         return call_user_func_array(F::curryN($fn, 1),func_get_args());
+    }
+
+    // isEqual :: (Ord a b) => a -> b -> Bool
+    public static function isEqual() {
+        $fn = function($a, $b) {
+            return $a == $b;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // join :: Monad (Monad a) -> Monad a

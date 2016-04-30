@@ -35,6 +35,19 @@ $andN = Gen::forAll(
         return $res == ! $hasFalse($xs);
     });
 
+$call = Gen::forAll(
+    [Gen::ints(), Gen::ints()],
+    function ($x, $y) {
+        $f = F::add();
+        $fn = F::add($x);
+        $result = F::add($x,$y);
+        return F::allEqual([
+            F::call($f, [$x,$y]),
+            F::call($fn, [$y]),
+            $result
+        ]);
+    });
+
 $startsWith = Gen::forAll(
     [Gen::asciiStrings(),
     Gen::asciiStrings()],
@@ -62,6 +75,11 @@ $resultAndN = [
 $resultStartsWith = [
     Quick::check(100, $startsWith), 
     'F::startsWith'
+];
+
+$resultCall = [
+    Quick::check(100, $call),
+    'F::call'
 ];
 
 $vars = get_defined_vars();
