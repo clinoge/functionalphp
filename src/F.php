@@ -25,7 +25,7 @@ class F {
     // andN :: Bool -> ... -> Bool -> Bool
     public static function andN() {
         $fn = function($args) {
-                return array_reduce($args, F::and(), true);
+            return array_reduce($args, F::and(), true);
         };
 
         return call_user_func_array( F::curryN($fn,1),  [func_get_args()]);
@@ -145,7 +145,7 @@ class F {
     // hasMethod :: String -> Object -> Bool
     public static function hasMethod() {
         $fn = function($method, $obj) {
-                return method_exists($obj, $method);
+            return method_exists($obj, $method);
         };
 
         return call_user_func_array(F::curry($fn), func_get_args());
