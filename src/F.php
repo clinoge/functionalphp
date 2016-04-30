@@ -6,52 +6,50 @@ use ReflectionMethod;
 class F {
     // add :: Int -> Int -> Int
     public static function add() {
-        return call_user_func_array(F::curry(function($x,$y) {
+        $fn = function($x,$y) {
             return $x + $y;
-        }), func_get_args());
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // and :: Bool -> Bool -> Bool
     public static function and() {
-        return call_user_func_array(F::curry(
-            function ($x, $y) {
-                return $x && $y;
-        }), func_get_args());
+        $fn = function ($x, $y) {
+            return $x && $y;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // andN :: Bool -> ... -> Bool -> Bool
     public static function andN() {
-        $params = func_get_args();
-        $fn = F::curryN(
-            function($args) {
+        $fn = function($args) {
                 return array_reduce($args, F::and(), true);
-        }, 1);
+        };
 
-        if (count($params) > 0) {
-            return call_user_func($fn, $params);
-        } else {
-            return $fn;
-        }
+        return call_user_func_array( F::curryN($fn,1),  [func_get_args()]);
     }
 
     // call :: (* -> *) -> [*] -> *
     public static function call() {
-        return call_user_func_array(F::curry(
-            function($fn, $args) {
-                if (is_array($args)) {
-                    return call_user_func_array($fn, $args);    
-                } else {
-                    return call_user_func_array($fn, [$args]);
-                }
-        }), func_get_args());
+        $fn = function($fn, $args) {
+            if (is_array($args)) {
+                return call_user_func_array($fn, $args);    
+            } else {
+                return call_user_func_array($fn, [$args]);
+            }};
+
+        return call_user_func_array( F::curry($fn),  func_get_args());
     }
 
     // chain :: (a -> Monad b) -> Monad a -> Monad b
     public static function chain() {
-        return call_user_func_array(F::curry(
-            function($f, $monad) {
-                return $monad->map($f)->join();
-        }), func_get_args());
+        $fn = function($f, $monad) {
+            return $monad->map($f)->join();
+        };
+
+        return call_user_func_array( F::curry($fn),  func_get_args());
     }
 
     // compose :: (a -> b), .., (x -> n) -> z
@@ -91,177 +89,200 @@ class F {
 
     // every :: (a -> Bool), .. , (z -> Bool) -> Bool
     public static function every() {
-        return call_user_func_array(F::curry(
-            function($f, $xs) {
-                $res = true;
-                foreach($xs as $x) {
-                    $res = $res && $f($x);
-                }
-                return $res;
-        }), func_get_args());
+        $fn = function($f, $xs) {
+            $res = true;
+            foreach($xs as $x) {
+                $res = $res && $f($x);
+            }
+            return $res;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // filter :: (a -> Bool) -> [a] -> [a]
     public static function filter() {
-        return call_user_func_array(F::curry(function($fn, $xs) {
+        $fn = function($fn, $xs) {
             return array_filter($xs, $fn);
-        }), func_get_args());
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // find :: a -> [a] -> a
     // ^ this should use Either or Maybe monad
     public static function find() {
-        return call_user_func_array(F::curry(function($x, $xs) {
+        $fn = function($x, $xs) {
             foreach($xs as $x1) {
                 if ($x == $x1) {
                     return $x;
                 }
             }
             return false;
-        }), func_get_args());
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // hasMethod :: String -> Object -> Bool
     public static function hasMethod() {
-        return call_user_func_array(F::curry(
-            function($method, $obj) {
+        $fn = function($method, $obj) {
                 return method_exists($obj, $method);
-        }), func_get_args());
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // id :: a -> a
     public static function id() {
-        return call_user_func_array(F::curry(
-            function($x) {
-                return $x;
-        }), func_get_args());
+        $fn = function($x) {
+            return $x;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // isFalse :: Bool -> Bool
     public static function isFalse() {
-        return call_user_func_array(F::curryN(
-            function($x) {
-                return $x == false;
-        }, 1),func_get_args());
+        $fn = function($x) {
+            return $x == false;
+        };
+
+        return call_user_func_array(F::curryN($fn, 1),func_get_args());
     }
 
     // join :: Monad (Monad a) -> Monad a
     public static function join() {
-        return call_user_func_array(F::curry(
-            function($monad) {
-                if (is_object($monad)) {
-                    return $monad->join();    
+        $fn = function($monad) {
+            if (is_object($monad)) {
+                return $monad->join();    
+            }
+            // Arrays are monads
+            if (is_array($monad)) {
+                if (count($monad) == 1
+                    && is_array($monad[0])) {
+                    return $monad[0];
                 }
-                // Arrays are monads
-                if (is_array($monad)) {
-                    if (count($monad) == 1
-                        && is_array($monad[0])) {
-                        return $monad[0];
-                    }
-                }
-        }), func_get_args());
+            }
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // last :: [a] -> a
     public static function last() {
-        return call_user_func_array(F::curry(
-            function($xs) {
-                $length = count($xs);
-                return $xs[$length - 1];
-        }), func_get_args());
+        $fn = function($xs) {
+            $length = count($xs);
+            return $xs[$length - 1];
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // map :: (a -> b) -> Monad a -> Monad b
     // List (arrays) are monads, aren't they?
     public static function map() {
-        return call_user_func_array(F::curry(
-            function ($fn, $xs) {
-                if (is_object($xs) 
-                    && $xs instanceof IMonad
-                    && F::hasMethod('map', $xs)) {
-                    return F::method('map', [$fn], $xs);
-                }
-                $new_arr = [];
-                foreach($xs as $x) {
-                    $new_arr[] = $fn($x);
-                }
-                return $new_arr;
-        }), func_get_args());
+        $fn = function ($fn, $xs) {
+            if (is_object($xs) 
+                && $xs instanceof IMonad
+                && F::hasMethod('map', $xs)) {
+                return F::method('map', [$fn], $xs);
+            }
+            $new_arr = [];
+            foreach($xs as $x) {
+                $new_arr[] = $fn($x);
+            }
+            return $new_arr;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // not :: (a -> b) -> a -> Bool
     public static function not() {
-        return call_user_func_array(F::curry(
-            function($f, $x) {
-                return ! $f($x);
-        }), func_get_args());
+        $fn = function($f, $x) {
+            return ! $f($x);
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // method :: String -> [*] -> Object -> *
     public static function method() {
-        return call_user_func_array(F::curry(
-            function($method, $args, $obj) {
-                return call_user_func_array([$obj, $method], $args);
-        }), func_get_args());
+        $fn = function($method, $args, $obj) {
+            return call_user_func_array([$obj, $method], $args);
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // prop :: String -> Object -> *
     public static function prop() {
-        return call_user_func_array(F::curry(
-            function($prop, $obj) {
-                if (!is_array($obj)) {
-                    if (isset($obj->{$prop})) {
-                        return $obj->{$prop};
-                    }
-                    return null;
-                } else {
-                    if (isset($obj[$prop])) {
-                        return $obj[$prop];
-                    }
-                    return null;
+        $fn = function($prop, $obj) {
+            if (!is_array($obj)) {
+                if (isset($obj->{$prop})) {
+                    return $obj->{$prop};
                 }
-        }), func_get_args());
+                return null;
+            } else {
+                if (isset($obj[$prop])) {
+                    return $obj[$prop];
+                }
+                return null;
+            }
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
     
     // safeProp :: String -> Object -> Maybe *
     public static function safeProp() {
-        return call_user_func_array(F::curry(function($prop, $obj) {
+        $fn = function($prop, $obj) {
             return Maybe::of(F::prop($prop, $obj));
-        }), func_get_args());
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // setProp :: String -> * -> Object -> Object
     // ^ immutable
     public static function setProp() {
-        return call_user_func_array(F::curry(
-            function($prop, $new_val, $obj) {
-                $o = clone $obj;
-                $o->{$prop} = $new_val;
-                return $o;
-        }), func_get_args());
+        $fn = function($prop, $new_val, $obj) {
+            $o = clone $obj;
+            $o->{$prop} = $new_val;
+            return $o;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // startsWith :: String -> String -> Bool
     public static function startsWith() {
-        return call_user_func_array(F::curry(function($x, $y) {
+        $fn = function($x, $y) {
             return substr($y, 0, strlen($x)) == $x;
-        }), func_get_args());
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // trace :: (Show a) => a -> a
 
     public static function trace() {
-        return call_user_func_array(F::curry(function($args) {
+        $fn = function($args) {
             var_dump($args);
             return $args;
-        }), func_get_args());
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // T :: * -> Bool
     public static function T() {
-        return call_user_func_array(F::curryN(function() {
+        $fn = function() {
             return true;
-        }, 1), func_get_args());
+        };
+
+        return call_user_func_array(F::curryN($fn, 1), func_get_args());
     }
 
     public static function __curry($fn, $args, $n, $right = false, $firstCall = true) {
@@ -287,7 +308,7 @@ class F {
     }
 
     public static function __liftN($n) {
-        return F::curryN(function() {
+        $fn = function() {
             $args = func_get_args();
             $functor = $args[1];
             $fn = $args[0];
@@ -298,7 +319,9 @@ class F {
                     { 
                         return $carry->ap($fun); 
             }, $functor->map($args[0]));
-        }, $n + 1);
+        };
+
+        return F::curryN($fn, $n + 1);
     }
 
     // Used for lifting as of now
