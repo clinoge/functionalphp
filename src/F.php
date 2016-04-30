@@ -93,7 +93,7 @@ class F {
     // filter :: (a -> Bool) -> [a] -> [a]
     public static function filter() {
         return call_user_func_array(F::curry(function($fn, $xs) {
-            return array_filter($fn, $arr);
+            return array_filter($xs, $fn);
         }), func_get_args());
     }
 
