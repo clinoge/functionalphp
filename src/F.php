@@ -169,6 +169,21 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // inverse :: Map -> Map
+    public static function inverse() {
+        $fn = function($xs) {
+            $new_arr = [];
+
+            foreach($xs as $k => $v) {
+                $new_arr[$v] = $k;
+            }
+
+            return $new_arr;
+        };
+
+        return call_user_func_array($fn, func_get_args());
+    }
+
     // isFalse :: Bool -> Bool
     public static function isFalse() {
         $fn = function($x) {
@@ -278,6 +293,15 @@ class F {
         };
 
         return call_user_func_array(F::curryN($fn, 1), func_get_args());
+    }
+
+    // reverse :: [a] -> [a]
+    public static function reverse() {
+        $fn = function($xs) {
+            return array_reverse($xs);
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
     
     // safeProp :: String -> Object -> Maybe *
