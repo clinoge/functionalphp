@@ -274,6 +274,18 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    public static function maybe() {
+        $fn = function($x, $f, $m) {
+            if (! $m->value) {
+                return $x;
+            } else {
+                return $f($m->value);
+            }
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
     // not :: (a -> b) -> a -> Bool
     public static function not() {
         $fn = function($f, $x) {
