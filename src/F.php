@@ -22,6 +22,16 @@ class F {
         return call_user_func_array(F::curryN($fn,1), func_get_args());
     }
 
+    public static function always() {
+        $fn = function($x) {
+            return function() use ($x) {
+                return $x;
+            };
+        };
+
+        return call_user_func_array(F::curryN($fn, 1), func_get_args());
+    }
+
     // and :: Bool -> Bool -> Bool
     public static function and() {
         $fn = function ($x, $y) {
@@ -71,6 +81,21 @@ class F {
         };
 
         return array_reduce(func_get_args(), $composeBinary, F::id());
+    }
+
+    public static function cond() {
+        $fn = function($cases, $x) {
+            foreach($cases as $case) {
+                $predFn = $case[0];
+                $thenFn = $case[1];
+
+                if ($predFn($x)) {
+                    return $thenFn($x);
+                }
+            }
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // curry :: (* -> a) -> (* -> a)
@@ -196,7 +221,7 @@ class F {
     // isEqual :: (Ord a b) => a -> b -> Bool
     public static function isEqual() {
         $fn = function($a, $b) {
-            return $a == $b;
+            return $a === $b;
         };
 
         return call_user_func_array(F::curry($fn), func_get_args());
