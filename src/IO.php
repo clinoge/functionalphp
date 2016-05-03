@@ -8,11 +8,11 @@ class IO implements IMonad, IFunctor {
     }
 
     public function fmap($x) {
-        $this->map($x);
+        return $this->map($x);
     }
 
-    public function ap($x) {
-        return;
+    public function ap($functor) {
+        return $functor->map($this->value);
     }
 
     public static function of() {
