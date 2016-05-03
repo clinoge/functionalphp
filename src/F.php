@@ -293,9 +293,16 @@ class F {
     // ^ immutable
     public static function setProp() {
         $fn = function($prop, $new_val, $obj) {
-            $o = clone $obj;
-            $o->{$prop} = $new_val;
-            return $o;
+            if (is_object($obj)) {
+                $o = clone $obj;
+                $o->{$prop} = $new_val;
+                return $o;
+            }
+            else {
+                $new_arr = $obj;
+                $new_arr[$prop] = $new_val;
+                return $new_arr;
+            }
         };
 
         return call_user_func_array(F::curry($fn), func_get_args());
