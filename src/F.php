@@ -177,6 +177,19 @@ class F {
 
         return call_user_func_array(F::curry($fn), func_get_args());
     }
+    // hasProp :: String -> Object -> Bool
+    public static function hasProp() {
+        $fn = function($prop, $obj) {
+            if (is_object($obj)) {
+                return isset($obj->{$prop});
+            }
+            else {
+                return isset($obj[$prop]);
+            }
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
 
     // hasMethod :: String -> Object -> Bool
     public static function hasMethod() {
@@ -353,6 +366,15 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
     
+    // safeMatch :: String -> String -> Maybe String
+    public static function safeMatch() {
+        $fn = function($pattern, $string) {
+            return Maybe::of(F::match($pattern, $string));
+        }
+
+        call_user_func_array(F::curry($fn), func_get_args());
+    }
+
     // safeProp :: String -> Object -> Maybe *
     public static function safeProp() {
         $fn = function($prop, $obj) {
