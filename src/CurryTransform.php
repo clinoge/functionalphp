@@ -12,7 +12,7 @@ class CurryTransform {
 
     public function __call($name, $args) {
         $rflMethod = new ReflectionMethod(get_class($this->contained), $name);
-        $params = $rflMethod->getNumberOfParameters();
+        $params = $rflMethod->getNumberOfRequiredParameters();
 
         return call_user_func_array(F::curryN(
             function() use ($name) {
