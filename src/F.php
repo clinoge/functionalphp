@@ -22,6 +22,7 @@ class F {
         return call_user_func_array(F::curryN($fn,1), func_get_args());
     }
 
+    // always :: a -> a
     public static function always() {
         $fn = function($x) {
             return function() use ($x) {
@@ -83,6 +84,7 @@ class F {
         return array_reduce(func_get_args(), $composeBinary, F::id());
     }
 
+    // cond :: [[(* -> Boolean), (* -> *)]] -> (* -> *)
     public static function cond() {
         $fn = function($cases, $x) {
             foreach($cases as $case) {
@@ -274,6 +276,7 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // match :: Pattern -> String -> String
     public static function match() {
         $fn = function($pattern, $string) {
             $arr = [];
@@ -288,6 +291,7 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // maybe :: a -> (b -> c) -> Monad -> a | c
     public static function maybe() {
         $fn = function($x, $f, $m) {
             if (! $m->value) {
@@ -393,7 +397,6 @@ class F {
     }
 
     // trace :: (Show a) => a -> a
-
     public static function trace() {
         $fn = function($args) {
             var_dump($args);
