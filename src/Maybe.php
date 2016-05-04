@@ -20,6 +20,10 @@ class Maybe implements IMonad, IFunctor {
             return new self($x); }), func_get_args());
     }
 
+    public function chain($fn) {
+        return F::chain($fn, $this);
+    }
+
     public function map($f) {
         if (F::prop('value', $this) != null) {
             return new $this($f(F::prop('value', $this)));

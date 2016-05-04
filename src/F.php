@@ -206,7 +206,7 @@ class F {
             return $new_arr;
         };
 
-        return call_user_func_array($fn, func_get_args());
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // isFalse :: Bool -> Bool
@@ -269,6 +269,20 @@ class F {
                 $new_arr[] = $fn($x);
             }
             return $new_arr;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
+    public static function match() {
+        $fn = function($pattern, $string) {
+            $arr = [];
+            preg_match($pattern, $string, $arr);
+            if (count($arr) > 0) {
+                return $arr[0];
+            } else {
+                return null;
+            }
         };
 
         return call_user_func_array(F::curry($fn), func_get_args());
