@@ -370,7 +370,7 @@ class F {
     public static function safeMatch() {
         $fn = function($pattern, $string) {
             return Maybe::of(F::match($pattern, $string));
-        }
+        };
 
         call_user_func_array(F::curry($fn), func_get_args());
     }
