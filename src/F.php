@@ -199,13 +199,7 @@ class F {
     // inverse :: Map -> Map
     public static function inverse() {
         $fn = function($xs) {
-            $new_arr = [];
-
-            foreach($xs as $k => $v) {
-                $new_arr[$v] = $k;
-            }
-
-            return $new_arr;
+            return array_combine(array_values($xs), array_keys($xs));
         };
 
         return call_user_func_array(F::curry($fn), func_get_args());
