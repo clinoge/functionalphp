@@ -431,7 +431,7 @@ class F {
         return call_user_func_array(F::curryN($fn, 1), func_get_args());
     }
 
-    public static function __curry($fn, $args, $n, $right = false, $firstCall = true) {
+    public static function __curry($fn, $args, $n, $right = false) {
         if ($n <= 0) {
             if ($right) {
                 return call_user_func_array($fn, array_reverse($args));
@@ -440,12 +440,8 @@ class F {
         } else {
             return function() use ($fn, $args, $n, $right, $firstCall) {
                 $args1 = func_get_args();
-                $fargs = array_merge($args, $args1);
+                $fargs = array_merge($args, $args1);2
 
-                if ($firstCall == false 
-                    && count($args1) == 0 ) {
-                    return F::__curry($fn, $fargs, 0, false);
-                }
                 return F::__curry($fn,
                                   $fargs, 
                                   $n - count($args1), $right, false);
