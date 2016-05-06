@@ -8,7 +8,7 @@ class Maybe implements IMonad, IFunctor {
     }
 
     public function fmap($x) {
-        $this->map($x);
+        return $this->map($x);
     }
 
     public function ap($functor) {

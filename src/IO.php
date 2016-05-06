@@ -12,7 +12,9 @@ class IO implements IMonad, IFunctor {
     }
 
     public function ap($functor) {
-        return $functor->map($this->value);
+        return F::chain(function($fn) use ($functor) {
+            return $functor->map($fn);
+        }, $this);
     }
 
     public static function of() {
