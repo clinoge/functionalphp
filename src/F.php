@@ -19,7 +19,7 @@ class F {
             return F::every(F::isEqual(F::first($xs)), F::rest($xs));
         };
 
-        return call_user_func_array(F::curryN($fn,1), func_get_args());
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // always :: a -> a
@@ -30,7 +30,7 @@ class F {
             };
         };
 
-        return call_user_func_array(F::curryN($fn, 1), func_get_args());
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // and :: Bool -> Bool -> Bool
@@ -44,11 +44,11 @@ class F {
 
     // andN :: Bool -> ... -> Bool -> Bool
     public static function andN() {
-        $fn = function($args) {
-            return array_reduce($args, F::and(), true);
+        $fn = function($xs) {
+            return array_reduce($xs, F::and(), true);
         };
 
-        return call_user_func_array( F::curryN($fn,1),  [func_get_args()]);
+        return call_user_func_array( F::curry($fn), [func_get_args()]);
     }
 
     // call :: (* -> *) -> [*] -> *
@@ -438,13 +438,13 @@ class F {
             }
             return call_user_func_array($fn, $args);
         } else {
-            return function() use ($fn, $args, $n, $right, $firstCall) {
+            return function() use ($fn, $args, $n, $right) {
                 $args1 = func_get_args();
-                $fargs = array_merge($args, $args1);2
+                $fargs = array_merge($args, $args1);
 
                 return F::__curry($fn,
                                   $fargs, 
-                                  $n - count($args1), $right, false);
+                                  $n - count($args1), $right);
             };
         }
     }
