@@ -51,6 +51,14 @@ class F {
         return call_user_func_array( F::curry($fn), [func_get_args()]);
     }
 
+    public static function assoc() {
+        $fn = function($k, $v) {
+            return [$k => $v];
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
     // call :: (* -> *) -> [*] -> *
     public static function call() {
         $fn = function($fn, $args) {
@@ -82,6 +90,14 @@ class F {
         };
 
         return array_reduce(func_get_args(), $composeBinary, F::id());
+    }
+
+    public static function concat() {
+        $concat = function($str, $str1) {
+            return $str . $str1;
+        };
+
+        return call_user_func_array(F::curry($concat), func_get_args());
     }
 
     // cond :: [[(* -> Boolean), (* -> *)]] -> (* -> *)
@@ -136,6 +152,20 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    public static function execute() {
+        $fn = function($fxs) {
+            $new_arr = [];
+
+            foreach($fxs as $f) {
+                $new_arr[] = $f();
+            }
+
+            return $new_arr;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
     // filter :: (a -> Bool) -> [a] -> [a]
     public static function filter() {
         $fn = function($fn, $xs) {
@@ -163,7 +193,11 @@ class F {
     // first :: [a] -> a
     public static function first() {
         $fn = function($xs) {
-            return $xs[0];
+            if (isset($xs[0])) {
+                return $xs[0];
+            } else {
+                return array_values($xs)[0];
+            }
         };
 
         return call_user_func_array(F::curryN($fn,1), func_get_args());
@@ -254,6 +288,20 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    public static function juxt() {
+        $fn = function($fxs, $xs) {
+            $new_arr = [];
+
+            foreach($fxs as $f) {
+                $new_arr[] = $f($xs);
+            }
+
+            return $new_arr;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
     // last :: [a] -> a
     public static function last() {
         $fn = function($xs) {
@@ -320,6 +368,27 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    public static function memoize() {
+        $fn = function() {
+            $args = func_get_args();
+            $fn = $args[0];
+            $args1 = array_slice($args,1);
+            $memory = [];
+
+            $fn2 = function($fn, $args) use ($memory) {
+                if (!isset($memory[$args])) {
+                    $memory[$args] = call_user_func_array($fn, $args);    
+                }
+
+                return $memory[$args];
+            };
+
+            return call_user_func_array($fn2, $args1);
+        };
+
+        return call_user_func_array($fn, func_get_args());
+    }
+
     // method :: String -> [*] -> Object -> *
     public static function method() {
         $fn = function($method, $args, $obj) {
@@ -346,6 +415,41 @@ class F {
         };
 
         return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
+    public static function reference() {
+        $fn = function($xs) {
+            $subject = $xs[0];
+
+            if (! is_callable($subject) &&
+                (is_object($subject) || class_exists($subject))) {
+                $method = $xs[1];
+                if (is_object($subject)) {
+                    $rflM = new ReflectionMethod(get_class($subject), $method);
+                }
+                else {
+                    $rflM = new ReflectionMethod($subject, $method);
+                }
+                $rflP = $rflM->getNumberOfParameters();
+                $fn2 = F::curryN(function() use ($subject, $method) {
+                    return call_user_func_array([$subject, $method], func_get_args());
+                }, $rflP);
+            }
+
+            else if (is_callable($subject) || 
+                    (is_string($subject) && function_exists($subject))) {
+                $func = $subject;
+                $rflF = new ReflectionFunction($subject);
+                $rflP = $rflF->getNumberOfParameters();
+                $fn2 = F::curryN(function() use ($func) {
+                    return call_user_func_array($func, func_get_args());
+                }, $rflP);
+            }
+
+            return $fn2;
+        };
+
+        return call_user_func_array(F::curry($fn), [func_get_args()]);
     }
 
     // rest :: [a] -> [a]
@@ -462,7 +566,6 @@ class F {
             $args = func_get_args();
             $functor = $args[1];
             $fn = $args[0];
-            $a = F::add();
 
             return array_reduce(array_slice($args, 2),
                 function ($carry, $fun) 
