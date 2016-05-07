@@ -51,6 +51,7 @@ class F {
         return call_user_func_array( F::curry($fn), [func_get_args()]);
     }
 
+    // assoc :: * -> * -> Map * *
     public static function assoc() {
         $fn = function($k, $v) {
             return [$k => $v];
@@ -92,6 +93,7 @@ class F {
         return array_reduce(func_get_args(), $composeBinary, F::id());
     }
 
+    // concat :: String -> String -> String
     public static function concat() {
         $concat = function($str, $str1) {
             return $str . $str1;
@@ -152,6 +154,7 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // execute :: [(None -> a), ... , (None -> z)] -> [a, ..., z]
     public static function execute() {
         $fn = function($fxs) {
             $new_arr = [];
@@ -288,6 +291,7 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // juxt :: [(a -> b), ..., (a -> y)] -> [a, ..., a] -> [b, ..., y]
     public static function juxt() {
         $fn = function($fxs, $xs) {
             $new_arr = [];
@@ -368,6 +372,7 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // not working, will take care of it later
     public static function memoize() {
         $fn = function() {
             $args = func_get_args();
@@ -417,6 +422,7 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // reference :: [Object | String, String | None] -> Callable
     public static function reference() {
         $fn = function($xs) {
             $subject = $xs[0];
