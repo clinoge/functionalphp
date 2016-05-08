@@ -71,6 +71,18 @@ class F {
 
         return call_user_func_array( F::curry($fn),  func_get_args());
     }
+    
+    public static function callIfArgs() {
+        $fn = function($fn, $args) {
+            if (F::isEmpty($args)) {
+                return $fn;
+            } else {
+                return F::call($fn, $args);
+            }
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
 
     // chain :: (a -> Monad b) -> Monad a -> Monad b
     public static function chain() {
@@ -255,13 +267,30 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    public static function isEmpty() {
+        $fn = function($xs) {
+            return count($xs) == 0;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
     // isFalse :: Bool -> Bool
     public static function isFalse() {
         $fn = function($x) {
-            return $x == false;
+            return $x === false;
         };
 
         return call_user_func_array(F::curryN($fn, 1),func_get_args());
+    }
+
+    // isNull :: * -> Bool
+    public static function isNull() {
+        $fn = function($x) {
+            return $x === null;
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
     }
 
     // isEqual :: (Ord a b) => a -> b -> Bool
