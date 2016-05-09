@@ -269,7 +269,7 @@ class F {
 
     public static function isEmpty() {
         $fn = function($xs) {
-            return count($xs) == 0;
+            return empty($xs);
         };
 
         return call_user_func_array(F::curry($fn), func_get_args());
