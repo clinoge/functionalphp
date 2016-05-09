@@ -392,6 +392,16 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    public static function contain() {
+        $fn = function($f, $args) {
+            return function () use ($f, $args) {
+                return call_user_func_array($f, $args);
+            };
+        };
+
+        return call_user_func_array($fn, func_get_args());
+    }
+
     // not :: (a -> b) -> a -> Bool
     public static function not() {
         $fn = function($f, $x) {
@@ -469,6 +479,7 @@ class F {
                 $fn2 = F::curryN(function() use ($subject, $method) {
                     return call_user_func_array([$subject, $method], func_get_args());
                 }, $rflP);
+                $args = array_slice($xs, 2);
             }
 
             else if (is_callable($subject) || 
@@ -479,8 +490,11 @@ class F {
                 $fn2 = F::curryN(function() use ($func) {
                     return call_user_func_array($func, func_get_args());
                 }, $rflP);
+                $args = array_slice($xs, 1);
             }
-
+            if (F::not(F::isEmpty(), $args)) {
+                return call_user_func_array($fn2, $args);
+            }
             return $fn2;
         };
 
