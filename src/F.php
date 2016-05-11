@@ -153,6 +153,14 @@ class F {
         return F::__curry($fn, [], $args, true);
     }
 
+    public static function divide() {
+        $divide = function($x, $y) {
+            return $x / $y;
+        };
+
+        return call_user_func_array(F::curry($divide), func_get_args());
+    }
+
     // every :: (a -> Bool), .. , (z -> Bool) -> Bool
     public static function every() {
         $fn = function($f, $xs) {
@@ -191,15 +199,14 @@ class F {
     }
 
     // find :: a -> [a] -> a
-    // ^ this should use Either or Maybe monad
     public static function find() {
-        $fn = function($x, $xs) {
-            foreach($xs as $x1) {
-                if ($x == $x1) {
+        $fn = function($predicate, $xs) {
+            foreach($xs as $x) {
+                if ($predicate($xs)) {
                     return $x;
                 }
             }
-            return false;
+            return null;
         };
 
         return call_user_func_array(F::curry($fn), func_get_args());
@@ -226,6 +233,16 @@ class F {
 
         return call_user_func_array(F::curry($fn), func_get_args());
     }
+
+    // hasMethod :: String -> Object -> Bool
+    public static function hasMethod() {
+        $fn = function($method, $obj) {
+            return method_exists($obj, $method);
+        };
+
+        return call_user_func_array(F::curry($fn), func_get_args());
+    }
+
     // hasProp :: String -> Object -> Bool
     public static function hasProp() {
         $fn = function($prop, $obj) {
@@ -240,13 +257,13 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
-    // hasMethod :: String -> Object -> Bool
-    public static function hasMethod() {
-        $fn = function($method, $obj) {
-            return method_exists($obj, $method);
+    public static function isSubclass() {
+        $isSubclass = function($classname, $obj) {
+            $classname1 = get_class($obj);
+            return $classname === $classname1;
         };
 
-        return call_user_func_array(F::curry($fn), func_get_args());
+        return call_user_func_array(F::curry($isSubclass), func_get_args());
     }
 
     // id :: a -> a
@@ -584,20 +601,43 @@ class F {
         return call_user_func_array(F::curryN($fn, 1), func_get_args());
     }
 
-    public static function __curry($fn, $args, $n, $right = false) {
-        if ($n <= 0) {
+    public static function __curry($fn, $args, $n, $right = false, $nplaceholders = 0) {
+        if ($n <= 0 && $nplaceholders <= 0) {
             if ($right) {
                 return call_user_func_array($fn, array_reverse($args));
             }
             return call_user_func_array($fn, $args);
         } else {
-            return function() use ($fn, $args, $n, $right) {
+            return function() use ($fn, $args, $n, $right, $nplaceholders) {
                 $args1 = func_get_args();
-                $fargs = array_merge($args, $args1);
+                $nargs = count($args1);
+                $invArgs = array_reverse($args1);
+
+                $placeholders = array_filter($args1, function($x) {
+                    return $x instanceof Placeholder;
+                });
+
+                $nplaceholders += count($placeholders);
+
+                if ($n <= 0 && $nargs > 0) {
+                    
+                    $fargs = array_map(function($x) use (&$args1) {
+                        if ($x instanceof Placeholder && count($args1) > 0) {
+                            return array_shift($args1);
+                        } else {
+                            return $x;
+                        }
+                    }, $args);
+                    $nplaceholders = count(array_filter($fargs, function($x) {
+                    return $x instanceof Placeholder;
+                }));
+                } else {
+                    $fargs = array_merge($args, $args1);
+                }
 
                 return F::__curry($fn,
                                   $fargs, 
-                                  $n - count($args1), $right);
+                                  $n - $nargs, $right, $nplaceholders);
             };
         }
     }

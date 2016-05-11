@@ -5,6 +5,7 @@ $requires = array_slice(scandir(dirname(__DIR__) . "/src/"), 2);
 array_map(function($x) { require dirname(__DIR__) . "/src/" . $x;}, $requires);
 
 use CLinoge\Functional\F;
+use CLinoge\Functional\Placeholder;
 use QCheck\Generator as Gen;
 use QCheck\Quick;
 
@@ -12,6 +13,7 @@ $add = Gen::forAll(
     [Gen::ints(), Gen::ints()],
     function($x, $y) {
         return F::andN([
+            F::add(new Placeholder, new Placeholder)($x)($y) == F::add($x, $y),
             F::add($x, $y) == F::add($y, $x),
             F::add($x, 0) == $x
         ]);
@@ -31,7 +33,7 @@ $andN = Gen::forAll(
     [Gen::booleans()->intoArrays()->notEmpty()],
     function ($xs) {
         $res = F::andN($xs);
-        $hasFalse = F::compose(F::find(false), F::filter(F::isFalse()));
+        $hasFalse = F::compose(F::find(F::isFalse()), F::filter(F::isFalse()));
         return $res == ! $hasFalse($xs);
     });
 
