@@ -450,6 +450,14 @@ class F {
         return call_user_func_array($fn, func_get_args());
     }
 
+    public static function merge() {
+        $merge = function($xs, $xs1) {
+            return array_merge($xs, $xs1);
+        };
+
+        return call_user_func_array(F::curry($merge), func_get_args());
+    }
+
     // method :: String -> [*] -> Object -> *
     public static function method() {
         $fn = function($method, $args, $obj) {
