@@ -51,6 +51,14 @@ class F {
         return call_user_func_array( F::curry($fn), [func_get_args()]);
     }
 
+    public static function arrayOf() {
+        $arrayOf = function($x) {
+            return [$x];
+        };
+
+        return call_user_func_array(F::curry($arrayOf), func_get_args());
+    }
+
     // assoc :: * -> * -> Map * *
     public static function assoc() {
         $fn = function($k, $v) {
