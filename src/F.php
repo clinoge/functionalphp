@@ -161,6 +161,7 @@ class F {
         return F::__curry($fn, [], $args, true);
     }
 
+    // divide :: Num -> Num -> Num
     public static function divide() {
         $divide = function($x, $y) {
             return $x / $y;
@@ -265,6 +266,7 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // isSubclass :: String -> Obj -> Bool
     public static function isSubclass() {
         $isSubclass = function($classname, $obj) {
             $classname1 = get_class($obj);
@@ -292,6 +294,7 @@ class F {
         return call_user_func_array(F::curry($fn), func_get_args());
     }
 
+    // isEmpty :: [a] -> Bool
     public static function isEmpty() {
         $fn = function($xs) {
             return empty($xs);
@@ -458,6 +461,7 @@ class F {
         return call_user_func_array($fn, func_get_args());
     }
 
+    // merge :: [a] -> [a] -> [a]
     public static function merge() {
         $merge = function($xs, $xs1) {
             return array_merge($xs, $xs1);
