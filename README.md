@@ -20,8 +20,7 @@ function myFunction(... $args) {
 
 ## Monads, Functors
 
-There's basic support for IO, Maybe and Left/Right. Their implementation is based upon the ideas exposed in the Mostly Adequate Guide and RamdaJS
-
+There's basic support for IO, Maybe and Left/Right. Their implementation is based upon the ideas exposed in the [Mostly Adequate Guide](https://github.com/MostlyAdequate/mostly-adequate-guide) by [Dr. Boolean](https://github.com/DrBoolean) and RamdaJS
 
 ## Function placeholders
 For a curried function n-ary f the following holds true:
